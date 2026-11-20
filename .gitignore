@@ -1,0 +1,15 @@
+# 非 Q1 内容（Q2/Hermes 题目与代码库、macOS 资源叉）
+Q2-Hermes代码库上手.md
+hermes-agent/
+__MACOSX/
+
+# 依赖与本地配置（.env 含 API Key，绝不提交）
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+# 运行时数据（SQLite 与会话 cookie）
+q1-assistant/data/*

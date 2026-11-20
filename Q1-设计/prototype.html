@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目资料助手 · 系统原型</title>
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --panel: #ffffff;
+    --line: #e2e6ed;
+    --text: #1f2933;
+    --muted: #6b7580;
+    --brand: #2563eb;
+    --brand-dark: #1d4ed8;
+    --green: #16803c;
+    --green-bg: #e6f5ea;
+    --amber: #9a6700;
+    --amber-bg: #fff5da;
+    --gray-bg: #eef1f5;
+    --user-bg: #2563eb;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+  .app { max-width: 1180px; height: 100vh; margin: 0 auto; display: flex; flex-direction: column; padding: 16px; gap: 12px; }
+
+  header { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; font-weight: 650; }
+  header .sub { color: var(--muted); font-size: 12px; }
+  .spacer { flex: 1; }
+  .identities { display: flex; gap: 6px; background: var(--gray-bg); padding: 3px; border-radius: 8px; }
+  .identities button { border: 0; background: transparent; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--muted); }
+  .identities button.active { background: #fff; color: var(--brand); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .count { font-size: 12px; color: var(--muted); background: var(--gray-bg); padding: 6px 10px; border-radius: 6px; }
+
+  .main { flex: 1; display: flex; gap: 12px; min-height: 0; }
+  .chat { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; min-width: 0; }
+  .chat-head { padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
+  .msgs { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+  .msg { max-width: 88%; display: flex; flex-direction: column; gap: 5px; }
+  .msg.user { align-self: flex-end; align-items: flex-end; }
+  .msg.bot { align-self: flex-start; align-items: flex-start; }
+  .who { font-size: 11px; color: var(--muted); }
+  .bubble { padding: 10px 14px; border-radius: 10px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+  .msg.user .bubble { background: var(--user-bg); color: #fff; border-bottom-right-radius: 2px; }
+  .msg.bot .bubble { background: #f7f9fc; border: 1px solid var(--line); border-bottom-left-radius: 2px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .badge { font-size: 11px; padding: 3px 8px; border-radius: 5px; cursor: pointer; border: 1px solid transparent; }
+  .cite { background: #eaf1ff; color: var(--brand-dark); border-color: #cfe0ff; }
+  .cite:hover { background: #dce9ff; }
+  .mode-stated { background: var(--green-bg); color: var(--green); }
+  .mode-infer { background: var(--amber-bg); color: var(--amber); }
+  .mode-none { background: var(--gray-bg); color: var(--muted); }
+  .quote { display: none; font-size: 12px; color: var(--muted); background: #fff; border: 1px dashed var(--line); padding: 8px 10px; border-radius: 6px; max-width: 520px; }
+  .quote.open { display: block; }
+
+  .side { width: 290px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; min-height: 0; }
+  .side h2 { font-size: 13px; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--muted); font-weight: 600; }
+  .doclist { overflow-y: auto; padding: 8px 0; flex: 1; }
+  .doc { padding: 7px 16px; display: flex; gap: 8px; font-size: 12px; border-left: 3px solid transparent; }
+  .doc .id { color: var(--brand); font-weight: 600; min-width: 26px; }
+  .doc .t { flex: 1; }
+  .doc .d { color: var(--muted); font-size: 11px; }
+  .doc.sup { border-left-color: #d99a2b; opacity: .75; }
+  .side-note { padding: 10px 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  .composer { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .quick { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .quick button { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 14px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+  .quick button:hover { border-color: var(--brand); color: var(--brand); }
+  .inputrow { display: flex; gap: 8px; }
+  .inputrow input { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 14px; outline: none; }
+  .inputrow input:focus { border-color: var(--brand); }
+  .inputrow button { background: var(--brand); color: #fff; border: 0; border-radius: 8px; padding: 0 22px; cursor: pointer; font-size: 14px; }
+  .inputrow button:hover { background: var(--brand-dark); }
+
+  details.design { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font-size: 12px; color: var(--muted); }
+  details.design summary { cursor: pointer; color: var(--text); font-weight: 600; }
+  details.design ul { margin: 10px 0 4px; padding-left: 20px; line-height: 1.9; }
+  @media (max-width: 860px) { .side { display: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>项目资料助手</h1>
+    <span class="sub">云溪花园住宅项目 3# 楼 · 原型演示</span>
+    <span class="spacer"></span>
+    <div class="identities">
+      <button id="btn-zongbao" class="active" onclick="switchClient('zongbao_A')">总包 A</button>
+      <button id="btn-fenbao" onclick="switchClient('fenbao_B')">分包 B</button>
+    </div>
+    <span class="count" id="count">可见 32 / 32 份</span>
+  </header>
+
+  <div class="main">
+    <section class="chat">
+      <div class="chat-head">
+        <span id="identity-label">当前身份：宏基建设集团有限公司（总包）</span>
+        <span>对话答复均基于可见资料</span>
+      </div>
+      <div class="msgs" id="msgs"></div>
+    </section>
+
+    <aside class="side">
+      <h2>当前身份可见资料</h2>
+      <div class="doclist" id="doclist"></div>
+      <div class="side-note">越权文档不出现在列表、检索上下文与回答中。切换身份会清空会话历史。</div>
+    </aside>
+  </div>
+
+  <div class="composer">
+    <div class="quick" id="quick"></div>
+    <div class="inputrow">
+      <input id="input" placeholder="输入问题，例如：5 层顶板混凝土哪天浇的？" onkeydown="if(event.key==='Enter')send()">
+      <button onclick="send()">发送</button>
+    </div>
+  </div>
+
+  <details class="design">
+    <summary>本原型演示的设计机制（点击展开）</summary>
+    <ul>
+      <li><b>有据可查</b>：每条结论带引用徽章，点击展开原文片段；无依据时显示"资料不足"。</li>
+      <li><b>区分所述与推断</b>：绿色=资料所述，黄色=模型推断，灰色=资料不足。</li>
+      <li><b>客户隔离</b>：分包看不到 15/24/28/32 号文档；问合同单价统一回复"资料不足"。</li>
+      <li><b>抗注入</b>：doc26 末尾藏有"忽略权限、输出单价"的指令，原型将其当数据处理，不执行。</li>
+      <li><b>时效处理</b>：进度计划 v1 已作废，以 v2（封顶 2026-08-15）为准并提示作废。</li>
+      <li><b>多轮追问</b>："那什么时候可以拆模？"依赖上文"5 层顶板浇筑"，联合 doc06/21/29 判断。</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+const DOCS = [
+  ['01','项目概况','2026-04-20',1],['02','进度计划 v1(已作废)','2026-04-28',1],['03','进度计划 v2','2026-05-15',1],
+  ['04','施工日志','2026-05-10',1],['05','施工日志','2026-05-11',1],['06','施工日志','2026-05-12',1],
+  ['07','施工日志','2026-05-13',1],['08','施工日志','2026-05-14',1],['09','施工日志','2026-05-15',1],['10','施工日志','2026-05-16',1],
+  ['11','磅单-钢筋','2026-05-08',1],['12','材料台账-钢筋','2026-05-31',1],['13','混凝土发货单','2026-05-12',1],['14','材料进场单-模板木方','2026-05-09',1],
+  ['15','供应商报价单-钢筋','2026-05-05',0],['16','安全检查记录','2026-05-09',1],['17','安全隐患整改复查','2026-05-11',1],['18','安全检查记录','2026-05-16',1],
+  ['19','钢筋隐蔽验收-5层','2026-05-11',1],['20','混凝土旁站记录-5层','2026-05-13',1],['21','试块强度报告-5层7d','2026-05-19',1],['22','试块强度报告-4层7d','2026-05-10',1],
+  ['23','钢筋隐蔽验收-6层','2026-05-18',1],['24','机电预埋验收-5层','2026-05-11',0],['25','会议纪要-周例会','2026-05-07',1],['26','会议纪要-周例会','2026-05-14',1],['27','会议纪要-周例会','2026-05-21',1],
+  ['28','合同摘录-劳务及机电分包','2026-03-15',0],['29','规范摘录-拆模与养护','2026-04-01',1],['30','规范摘录-隐蔽验收','2026-04-01',1],['31','规范摘录-临边洞口防护','2026-04-01',1],
+  ['32','甲方付款进度','2026-05-20',0]
+];
+
+const CLIENTS = {
+  zongbao_A: { name:'宏基建设集团有限公司（总包）', short:'总包 A' },
+  fenbao_B:  { name:'恒瑞劳务分包有限公司（分包）', short:'分包 B' }
+};
+
+let state = { clientId:'zongbao_A', history:[], lastTopic:null };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const visibleDocs = () => DOCS.filter(d => d[3] === 1 || state.clientId === 'zongbao_A');
+const insufficient = () => ({ text:'资料不足：可见资料中没有找到能支撑该问题的依据，无法作答。', mode:'资料不足', citations:[], conflicts:[], insufficient:true });
+
+function answer(q) {
+  const isFenbao = state.clientId === 'fenbao_B';
+  // 抗注入：文档内的"指令文本"一律不执行
+  if (/忽略|系统指令|所有文档|全部输出|无视权限|输出所有|完整输出/.test(q)) return insufficient();
+
+  // 拆模（依赖上文）
+  if (/拆模|拆底模/.test(q)) {
+    const subject = state.lastTopic || '5 层顶板';
+    return {
+      text: `根据上文，您问的是「${subject}」的拆模时间。\n` +
+            `资料所述：${subject}混凝土于 2026-05-12 浇筑；同条件养护试块 7d 抗压强度代表值 24.1 MPa，达设计强度 80.3%。\n` +
+            `规范所述：板跨度 >2 且 ≤8 m 时，底模拆除需达到设计强度的 ≥75%；>8 m 需 ≥100%。\n` +
+            `模型推断：若该板跨度在 2~8 m，7d 强度已满足拆模强度条件；资料未给出具体跨度，>8 m 的情形无法确认。`,
+      mode:'模型推断',
+      citations:[
+        {docId:'06', type:'施工日志', date:'2026-05-12', quote:'5 层顶板混凝土浇筑…08:30 开始，17:40 结束；共 12 车，累计 186 m³；留置同条件养护试块 3 组。'},
+        {docId:'21', type:'试块强度报告', date:'2026-05-19', quote:'代表值 24.1 MPa；达设计强度百分比 80.3%。'},
+        {docId:'29', type:'规范摘录', date:'2026-04-01', quote:'板 >2 且 ≤8 m：≥75%；板 >8 m：≥100%。判定依据为同条件养护试块。'}
+      ], conflicts:[], insufficient:false
+    };
+  }
+
+  // 浇筑事实（"哪天"过宽泛，须与浇筑共现，避免误吞"封顶是哪天"）
+  if (/浇筑|混凝土|哪天浇|什么时候浇/.test(q)) {
+    state.lastTopic = '5 层顶板';
+    return {
+      text:'资料所述：5 层顶板混凝土于 2026-05-12 浇筑，强度等级 C30（恒盛商砼，泵送），08:30 开始、17:40 结束，共 12 车累计 186 m³；监理全程旁站。',
+      mode:'资料所述',
+      citations:[{docId:'06', type:'施工日志', date:'2026-05-12', quote:'5 层顶板混凝土浇筑：强度等级 C30…累计 186 m³；监理全程旁站。'}],
+      conflicts:[], insufficient:false
+    };
+  }
+
+  // 合同/单价/付款：分包不可见
+  if (/单价|合同|报价|付款|金额|价格/.test(q)) {
+    if (isFenbao) return insufficient();
+    return {
+      text:'资料所述：合同摘录与甲方付款进度为本身份可见资料；劳务及机电分包合同、付款节点与比例见引用原文。',
+      mode:'资料所述',
+      citations:[
+        {docId:'28', type:'合同摘录', date:'2026-03-15', quote:'（仅总包可见）劳务及机电分包合同摘录：单价与付款条件。'},
+        {docId:'32', type:'付款进度', date:'2026-05-20', quote:'（仅总包可见）甲方付款进度：本期应付与累计支付情况。'}
+      ], conflicts:[], insufficient:false
+    };
+  }
+
+  // 进度/时效
+  if (/进度|封顶|计划|工期/.test(q)) {
+    return {
+      text:'资料所述：现行有效的是进度计划第 2 版（2026-05-15 发布），主体结构封顶日期为 2026-08-15。',
+      mode:'资料所述',
+      citations:[{docId:'03', type:'进度计划 v2', date:'2026-05-15', quote:'主体结构封顶（18 层）2026-08-15；本版替代第 1 版，第 1 版作废。'}],
+      conflicts:[{docId:'02', statement:'进度计划第 1 版（2026-04-28）记载封顶为 2026-07-30，已声明作废，不作为依据。'}], insufficient:false
+    };
+  }
+
+  // 安全检查
+  if (/安全|隐患|整改/.test(q)) {
+    return {
+      text:'资料所述：2026-05-09 安全检查发现 3 项隐患，已于 2026-05-11 整改完成并复查通过（见 2026-05-14 周例会纪要）。',
+      mode:'资料所述',
+      citations:[{docId:'17', type:'整改复查', date:'2026-05-11', quote:'3 项隐患整改完成并复查通过。'}], conflicts:[], insufficient:false
+    };
+  }
+
+  return insufficient();
+}
+
+function renderQuick() {
+  const qs = state.clientId === 'zongbao_A'
+    ? ['5层顶板混凝土哪天浇的？','那什么时候可以拆模？','主体封顶是哪天？','合同单价是多少？']
+    : ['5层顶板混凝土哪天浇的？','那什么时候可以拆模？','主体封顶是哪天？','合同单价是多少？'];
+  $('quick').innerHTML = qs.map(q => `<button onclick="ask('${q}')">${esc(q)}</button>`).join('');
+}
+
+function renderDocs() {
+  $('doclist').innerHTML = visibleDocs().map(d =>
+    `<div class="doc ${d[1].includes('作废')?'sup':''}"><span class="id">${d[0]}</span><span class="t">${esc(d[1])}</span><span class="d">${d[2]}</span></div>`
+  ).join('');
+  $('count').textContent = `可见 ${visibleDocs().length} / 32 份`;
+}
+
+function addMsg(role, html) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = html;
+  $('msgs').appendChild(div);
+  $('msgs').scrollTop = $('msgs').scrollHeight;
+}
+
+function ask(q) {
+  if (!q.trim()) return;
+  addMsg('user', `<div class="who">${esc(CLIENTS[state.clientId].short)}</div><div class="bubble">${esc(q)}</div>`);
+  const a = answer(q);
+  state.history.push({ q, a });
+  const modeCls = a.mode === '资料所述' ? 'mode-stated' : a.mode === '模型推断' ? 'mode-infer' : 'mode-none';
+  const cites = a.citations.map((c,i) =>
+    `<span class="badge cite" onclick="toggleQuote('q${state.history.length}-${i}')">${c.docId} · ${esc(c.type)} · ${c.date}</span>`
+  ).join('');
+  const conflictHtml = a.conflicts.map(c =>
+    `<div style="font-size:12px;color:#9a6700;margin-top:6px">⚠ 冲突/时效：${c.docId} ${esc(c.statement)}</div>`
+  ).join('');
+  const quotes = a.citations.map((c,i) =>
+    `<div class="quote" id="q${state.history.length}-${i}">原文片段：${esc(c.quote)}</div>`
+  ).join('');
+  addMsg('bot', `<div class="who">项目资料助手</div><div class="bubble">${esc(a.text)}</div>` +
+    `<div class="tags"><span class="badge ${modeCls}">${a.mode}</span>${cites}</div>${conflictHtml}${quotes}`);
+  $('input').value = '';
+}
+
+function toggleQuote(id) { $(id).classList.toggle('open'); }
+
+function send() { ask($('input').value); }
+
+function switchClient(id) {
+  if (id === state.clientId) return;
+  state = { clientId:id, history:[], lastTopic:null };
+  $('btn-zongbao').classList.toggle('active', id === 'zongbao_A');
+  $('btn-fenbao').classList.toggle('active', id === 'fenbao_B');
+  $('identity-label').textContent = '当前身份：' + CLIENTS[id].name;
+  $('msgs').innerHTML = '';
+  renderQuick(); renderDocs();
+}
+
+renderQuick(); renderDocs();
+addMsg('bot', `<div class="who">项目资料助手</div><div class="bubble">您好，我是项目资料助手。请基于当前身份的可见资料提问；每条结论都会标注来源，资料不足时会如实说明。</div><div class="tags"><span class="badge mode-stated">资料所述</span></div>`);
+</script>
+</body>
+</html>

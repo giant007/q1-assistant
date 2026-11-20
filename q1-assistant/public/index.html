@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目资料助手</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>项目资料助手</h1>
+    <span class="sub">云溪花园住宅项目 3# 楼</span>
+    <span class="spacer"></span>
+    <div class="identities" id="identities"></div>
+    <span class="count" id="count">加载中…</span>
+  </header>
+  <div class="main">
+    <section class="chat">
+      <div class="chat-head"><span id="identity-label">—</span><span>答复均基于可见资料</span></div>
+      <div class="msgs" id="msgs"></div>
+      <div class="composer">
+        <div class="inputrow">
+          <input id="input" placeholder="输入问题，例如：5 层顶板混凝土哪天浇的？">
+          <button id="send">发送</button>
+        </div>
+      </div>
+    </section>
+    <aside class="side">
+      <h2>当前身份可见资料</h2>
+      <div class="doclist" id="doclist"></div>
+      <div class="side-note">越权文档不出现在列表、上下文与回答中；切换身份会清空会话历史。</div>
+    </aside>
+  </div>
+</div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
